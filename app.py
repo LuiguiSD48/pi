@@ -32,11 +32,11 @@ def registrar():
 
 @app.route('/iniciars')
 def iniciars():
-    return render_template('login.html')
+    return render_template('requerimientos.html')
 
 
 #Creando mi primer Decorador o ruta para el Home
-@app.route('/mostrar', methods=['GET','POST'])
+@app.route('/mostrar')
 def mostrar():
     
     CS=mysql.connection.cursor()
@@ -57,12 +57,43 @@ def iniciar():
         CS = mysql.connection.cursor()
         CS.execute('select * from usuarios where usuario=(%s) and contrasena=(%s)', (nombre,contraseña))
         if (CS.rowcount == 1):
-            return render_template('consultar.html')
+            flash('Acceso correcto')
+            return render_template('requerimientos.html')
         else:
+            flash('Usuario o contraseña incorrecta')
             return render_template('Login.html')
 
-    flash('Album Agregado Correctamente bro')
-    return redirect(url_for('index'))
+
+
+
+@app.route('/requerir',methods=['POST'])
+def requerir():
+    if request.method == 'POST':
+        marca= request.form['txtmarca']
+        presupuesto= request.form['txtpresupuesto']
+        color= request.form['txtcolor']
+        asientos= request.form['txtasientos']
+        estado= request.form['txtestado']
+        CS = mysql.connection.cursor()
+        CS.execute('insert into requerimientos (marca,presupuesto,color,asientos,estado) values(%s,%s,%s,%s,%s)',(marca,presupuesto,color,asientos,estado))
+        mysql.connection.commit()
+    
+    return redirect(url_for('mostrar'))
+        
+        
+@app.route('/guardar',methods=['POST'])
+def guardar():
+    if request.method == 'POST':
+        nombre= request.form['txtnombre']
+        usuario= request.form['txtusuario']
+        correo= request.form['txtcorreo']
+        contrasena= request.form['txtcontrasena']
+        CS = mysql.connection.cursor()
+        CS.execute('insert into usuarios (nombre,usuario,correo,contrasena) values(%s,%s,%s,%s)',(nombre,usuario,correo,contrasena))
+        mysql.connection.commit()
+
+    flash('Usuario guardado')
+    return render_template("requerimientos.html")
 
 #ejecucion 
 if __name__== '__main__':
